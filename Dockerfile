@@ -20,17 +20,35 @@ VOLUME /app/var/
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
-		file \
-		git \
+	file \
+	git \
 	; \
 	rm -rf /var/lib/apt/lists/*; \
 	install-php-extensions \
-		@composer \
-		apcu \
-		intl \
-		opcache \
-		zip \
+	@composer \
+	apcu \
+	intl \
+	opcache \
+	zip \
 	;
+
+RUN apt-get update && apt-get install -y \
+	libfreetype6-dev \
+	libjpeg62-turbo-dev \
+	libpng-dev \
+	libwebp-dev \
+	libxpm-dev \
+	libgd-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure gd \
+	--with-freetype \
+	--with-jpeg \
+	--with-webp \
+	--with-xpm
+
+RUN docker-php-ext-install gd 
+
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -63,7 +81,7 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \
 	install-php-extensions \
-		xdebug \
+	xdebug \
 	;
 
 COPY --link frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
@@ -93,6 +111,6 @@ RUN set -eux; \
 	composer dump-env prod; \
 	composer run-script --no-dev post-install-cmd; \
 	if [ -f importmap.php ]; then \
-		php bin/console asset-map:compile; \
+	php bin/console asset-map:compile; \
 	fi; \
 	chmod +x bin/console; sync;
