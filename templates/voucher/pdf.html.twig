@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ваучер {{ voucher.uuid|slice(0,8) }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2cm; }
+        h1 { color: #333; }
+        .journal { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>ВАУЧЕР</h1>
+
+    <p>Снижение стоимости публикации на 15%</p>
+
+    <p><span class="journal">Журнал:</span> {{ voucher.journal }}</p>
+
+    <p>Получатель: {{ voucher.fullName }} ({{ voucher.orcid }})</p>
+
+    <p>Срок действия:
+        {{ voucher.validFrom|date('d.m.Y') }} —
+        {{ voucher.validTo|date('d.m.Y') }}
+    </p>
+
+    <p>UUID: {{ voucher.uuid }}</p>
+</body>
+</html>

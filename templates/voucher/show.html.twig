@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ваучер #{{ voucher.uuid|slice(0,8) }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>ВАУЧЕР</h1>
+
+    <p>Скидка 15%</p>
+    <p>Журнал: {{ voucher.journal }}</p>
+    <p>Получатель: {{ voucher.fullName }}</p>
+    <p>ORCID: {{ voucher.orcid }}</p>
+    <p>Действует с {{ voucher.validFrom|date('d.m.Y') }}
+       по {{ voucher.validTo|date('d.m.Y') }}</p>
+
+    <a href="{{ path('voucher_download', {uuid: voucher.uuid}) }}" class="btn">
+        Скачать PDF
+    </a>
+</div>
+{% endblock %}
