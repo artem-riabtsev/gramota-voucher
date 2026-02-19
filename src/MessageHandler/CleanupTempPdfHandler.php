@@ -10,19 +10,10 @@ class CleanupTempPdfHandler
 {
     public function __invoke(CleanupTempPdf $message): void
     {
-        $tempDir = '/tmp/voucher_pdf';
+        $file = '/app/var/voucher_pdf/' . $message->uuid . '.pdf';
 
-        if (!is_dir($tempDir)) {
-            return;
-        }
-
-        $files = glob($tempDir . '/*.pdf');
-        $now = time();
-
-        foreach ($files as $file) {
-            if ($now - filemtime($file) > 60) {
-                unlink($file);
-            }
+        if (file_exists($file)) {
+            unlink($file);
         }
     }
 }

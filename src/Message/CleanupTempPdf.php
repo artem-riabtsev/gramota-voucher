@@ -2,4 +2,9 @@
 
 namespace App\Message;
 
-class CleanupTempPdf {}
+class CleanupTempPdf
+{
+    public function __construct(
+        public string $uuid
+    ) {}
+}

@@ -9,6 +9,7 @@ services:
       - ./:/app
       - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
       - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
+      - ./var/voucher_pdf:/app/var/voucher_pdf
       # If you develop on Mac or Windows you can remove the vendor/ directory
       #  from the bind-mount for better performance by enabling the next line:
       #- /app/vendor
@@ -39,10 +40,13 @@ services:
       target: frankenphp_dev
     volumes:
       - ./:/app
-    command: php bin/console messenger:consume scheduler_pdf_cleanup
+      - ./var/voucher_pdf:/app/var/voucher_pdf
+    command: php bin/console messenger:consume async -vv
     restart: always
     depends_on:
       - php
+      - database
+
 
 ###> symfony/mailer ###
 # Раскомментировать для теста

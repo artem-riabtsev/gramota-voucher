@@ -8,12 +8,12 @@ framework:
             # async: '%env(MESSENGER_TRANSPORT_DSN)%'
             # failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
-            scheduler_pdf_cleanup: 'in-memory://'
+            async: 'doctrine://default?queue_name=async'
 
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
-            'App\Message\CleanupTempPdf': scheduler_pdf_cleanup
+            'App\Message\CleanupTempPdf': async
 
 # when@test:
 #    framework:

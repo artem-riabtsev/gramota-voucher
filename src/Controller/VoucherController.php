@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 class VoucherController extends AbstractController
 {
@@ -20,6 +22,7 @@ class VoucherController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         PdfGenerator $pdfGenerator,
+        MessageBusInterface $bus
     ): Response {
 
         $voucher = new Voucher();
@@ -41,6 +44,11 @@ class VoucherController extends AbstractController
             $tempFile = '/tmp/voucher_pdf' . '/' . $voucher->getUuid() . '.pdf';
             file_put_contents($tempFile, $pdfContent);
 
+            $bus->dispatch(
+                new \App\Message\CleanupTempPdf($voucher->getUuid()->toRfc4122()),
+                [new DelayStamp(60000)]
+            );
+
             return $this->redirectToRoute('voucher_show', [
                 'uuid' => $voucher->getUuid()
             ]);
@@ -54,7 +62,7 @@ class VoucherController extends AbstractController
     #[Route('/voucher/{uuid}', name: 'voucher_show')]
     public function show(Voucher $voucher, MailerInterface $mailer): Response
     {
-        $tempFile = '/tmp/voucher_pdf/' . $voucher->getUuid() . '.pdf';
+        $tempFile = '/app/var/voucher_pdf/' . $voucher->getUuid() . '.pdf';
 
         $message = (new Email())
             ->to($voucher->getEmail())
@@ -72,7 +80,7 @@ class VoucherController extends AbstractController
     #[Route('/voucher/{uuid}/download', name: 'voucher_download')]
     public function download(Voucher $voucher): Response
     {
-        $tempFile = '/tmp/voucher_pdf/' . $voucher->getUuid() . '.pdf';
+        $tempFile = '/app/var/voucher_pdf/' . $voucher->getUuid() . '.pdf';
 
         if (!file_exists($tempFile)) {
             throw $this->createNotFoundException('PDF файл не найден или срок скачивания истек');
