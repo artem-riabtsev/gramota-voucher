@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Uid\Uuid;
 
 class VoucherController extends AbstractController
 {
@@ -20,6 +19,7 @@ class VoucherController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $em,
+        PdfGenerator $pdfGenerator,
     ): Response {
 
         $voucher = new Voucher();
@@ -29,7 +29,6 @@ class VoucherController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $voucher->setUuid(Uuid::v4());
             $voucher->setJournal('Педагогика. Вопросы теории и практики');
             $voucher->setValidFrom(new \DateTime('2026-02-02'));
             $voucher->setValidTo(new \DateTime('2026-08-02'));
@@ -37,6 +36,10 @@ class VoucherController extends AbstractController
 
             $em->persist($voucher);
             $em->flush();
+
+            $pdfContent = $pdfGenerator->generate($voucher);
+            $tempFile = '/tmp/voucher_pdf' . '/' . $voucher->getUuid() . '.pdf';
+            file_put_contents($tempFile, $pdfContent);
 
             return $this->redirectToRoute('voucher_show', [
                 'uuid' => $voucher->getUuid()
@@ -51,11 +54,13 @@ class VoucherController extends AbstractController
     #[Route('/voucher/{uuid}', name: 'voucher_show')]
     public function show(Voucher $voucher, MailerInterface $mailer): Response
     {
+        $tempFile = '/tmp/voucher_pdf/' . $voucher->getUuid() . '.pdf';
 
         $message = (new Email())
             ->to($voucher->getEmail())
             ->subject('Ваш ваучер')
-            ->text('Ваш ваучер');
+            ->text('Ваш ваучер')
+            ->attachFromPath($tempFile, 'voucher.pdf');
 
         $mailer->send($message);
 
@@ -65,15 +70,16 @@ class VoucherController extends AbstractController
     }
 
     #[Route('/voucher/{uuid}/download', name: 'voucher_download')]
-    public function download(
-        Voucher $voucher,
-        PdfGenerator $pdfGenerator
-    ): Response {
+    public function download(Voucher $voucher): Response
+    {
+        $tempFile = '/tmp/voucher_pdf/' . $voucher->getUuid() . '.pdf';
 
-        $pdfContent = $pdfGenerator->generate($voucher);
+        if (!file_exists($tempFile)) {
+            throw $this->createNotFoundException('PDF файл не найден или срок скачивания истек');
+        }
 
         return new Response(
-            $pdfContent,
+            file_get_contents($tempFile),
             200,
             [
                 'Content-Type' => 'application/pdf',

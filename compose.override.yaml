@@ -32,6 +32,18 @@ services:
       - "5432"
 ###< doctrine/doctrine-bundle ###
 
+  worker:
+    image: ${IMAGES_PREFIX:-}app-php
+    build:
+      context: .
+      target: frankenphp_dev
+    volumes:
+      - ./:/app
+    command: php bin/console messenger:consume scheduler_pdf_cleanup
+    restart: always
+    depends_on:
+      - php
+
 ###> symfony/mailer ###
 # Раскомментировать для теста
   # mailer:
