@@ -20,7 +20,6 @@ class VoucherController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $em,
-        MailerInterface $mailer
     ): Response {
 
         $voucher = new Voucher();
@@ -39,14 +38,6 @@ class VoucherController extends AbstractController
             $em->persist($voucher);
             $em->flush();
 
-            $message = (new Email())
-                ->from('user@example.com')
-                ->to($voucher->getEmail())
-                ->subject('Ваш ваучер')
-                ->text('Ваш ваучер');
-
-            $mailer->send($message);
-
             return $this->redirectToRoute('voucher_show', [
                 'uuid' => $voucher->getUuid()
             ]);
@@ -58,8 +49,16 @@ class VoucherController extends AbstractController
     }
 
     #[Route('/voucher/{uuid}', name: 'voucher_show')]
-    public function show(Voucher $voucher): Response
+    public function show(Voucher $voucher, MailerInterface $mailer): Response
     {
+
+        $message = (new Email())
+            ->to($voucher->getEmail())
+            ->subject('Ваш ваучер')
+            ->text('Ваш ваучер');
+
+        $mailer->send($message);
+
         return $this->render('voucher/show.html.twig', [
             'voucher' => $voucher
         ]);
