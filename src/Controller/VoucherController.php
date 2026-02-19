@@ -5,19 +5,22 @@ namespace App\Controller;
 use App\Entity\Voucher;
 use App\Form\VoucherType;
 use App\Service\PdfGenerator;
+use Symfony\Component\Mime\Email;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
 class VoucherController extends AbstractController
 {
-    #[Route('/voucher/create', name: 'voucher_create')]
+    #[Route(['/voucher/create', '/'], name: 'voucher_create')]
     public function create(
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        MailerInterface $mailer
     ): Response {
 
         $voucher = new Voucher();
@@ -35,6 +38,14 @@ class VoucherController extends AbstractController
 
             $em->persist($voucher);
             $em->flush();
+
+            $message = (new Email())
+                ->from('user@example.com')
+                ->to($voucher->getEmail())
+                ->subject('Ваш ваучер')
+                ->text('Ваш ваучер');
+
+            $mailer->send($message);
 
             return $this->redirectToRoute('voucher_show', [
                 'uuid' => $voucher->getUuid()
