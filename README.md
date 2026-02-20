@@ -2,6 +2,11 @@
 ```bash
 cp .env.example .env
 ```
+Создать каталог для временных файлов
+```bash
+mkdir -p var/voucher_pdf
+chmod -R 777 var/voucher_pdf
+```
 Запуск контейнеров
 ```bash
 # Собрать и запустить контейнеры

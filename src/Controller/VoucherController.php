@@ -41,7 +41,7 @@ class VoucherController extends AbstractController
             $em->flush();
 
             $pdfContent = $pdfGenerator->generate($voucher);
-            $tempFile = '/tmp/voucher_pdf' . '/' . $voucher->getUuid() . '.pdf';
+            $tempFile = '/app/var/voucher_pdf/' . $voucher->getUuid() . '.pdf';
             file_put_contents($tempFile, $pdfContent);
 
             $bus->dispatch(
