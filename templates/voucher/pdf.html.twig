@@ -12,9 +12,9 @@
 <body>
     <h1>ВАУЧЕР</h1>
 
-    <p>Снижение стоимости публикации на 15%</p>
+    <p>Скидка: {{ voucher.discount }}%</p>
 
-    <p><span class="journal">Журнал:</span> {{ voucher.journal }}</p>
+    <p><span class="journal">Журнал:</span> {{ voucher.voucherType.name }}</p>
 
     <p>Получатель: {{ voucher.fullName }} ({{ voucher.orcid }})</p>
 

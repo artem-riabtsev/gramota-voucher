@@ -6,8 +6,8 @@
 <div class="container">
     <h1>ВАУЧЕР</h1>
 
-    <p>Скидка 15%</p>
-    <p>Журнал: {{ voucher.journal }}</p>
+    <p>Скидка: {{ voucher.discount }}%</p>
+    <p>Журнал: {{ voucher.voucherType.name }}</p>
     <p>Получатель: {{ voucher.fullName }}</p>
     <p>ORCID: {{ voucher.orcid }}</p>
     <p>Действует с {{ voucher.validFrom|date('d.m.Y') }}

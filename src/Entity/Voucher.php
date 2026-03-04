@@ -16,8 +16,9 @@ class Voucher
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $uuid = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $journal = null;
+    #[ORM\ManyToOne(inversedBy: 'vouchers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?VoucherType $voucherType = null;
 
     #[ORM\Column(length: 255)]
     private ?string $fullName = null;
@@ -27,6 +28,9 @@ class Voucher
 
     #[ORM\Column(length: 255)]
     private ?string $email = null;
+
+    #[ORM\Column]
+    private ?int $discount = null;
 
     #[ORM\Column]
     private ?\DateTime $validFrom = null;
@@ -42,16 +46,20 @@ class Voucher
         return $this->uuid;
     }
 
-    public function getJournal(): ?string
+    public function getVoucherType(): ?VoucherType
     {
-        return $this->journal;
+        return $this->voucherType;
     }
 
-    public function setJournal(string $journal): static
+    public function setVoucherType(?VoucherType $voucherType): static
     {
-        $this->journal = $journal;
-
+        $this->voucherType = $voucherType;
         return $this;
+    }
+
+    public function getJournal(): ?string
+    {
+        return $this->voucherType?->getName();
     }
 
     public function getFullName(): ?string
@@ -62,7 +70,6 @@ class Voucher
     public function setFullName(string $fullName): static
     {
         $this->fullName = $fullName;
-
         return $this;
     }
 
@@ -74,7 +81,6 @@ class Voucher
     public function setOrcid(string $orcid): static
     {
         $this->orcid = $orcid;
-
         return $this;
     }
 
@@ -86,7 +92,17 @@ class Voucher
     public function setEmail(string $email): static
     {
         $this->email = $email;
+        return $this;
+    }
 
+    public function getDiscount(): ?int
+    {
+        return $this->discount;
+    }
+
+    public function setDiscount(int $discount): static
+    {
+        $this->discount = $discount;
         return $this;
     }
 
@@ -98,7 +114,6 @@ class Voucher
     public function setValidFrom(\DateTime $validFrom): static
     {
         $this->validFrom = $validFrom;
-
         return $this;
     }
 
@@ -110,7 +125,6 @@ class Voucher
     public function setValidTo(\DateTime $validTo): static
     {
         $this->validTo = $validTo;
-
         return $this;
     }
 
@@ -122,7 +136,6 @@ class Voucher
     public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 }

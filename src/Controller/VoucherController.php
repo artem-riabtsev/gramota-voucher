@@ -3,14 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Voucher;
-use App\Form\VoucherType;
+use App\Form\PublicVoucherFormType;
 use App\Service\PdfGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 
 class VoucherController extends AbstractController
 {
@@ -19,15 +19,14 @@ class VoucherController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): Response {
-
         $voucher = new Voucher();
 
-        $form = $this->createForm(VoucherType::class, $voucher);
+        $form = $this->createForm(PublicVoucherFormType::class, $voucher);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $voucher->setDiscount($voucher->getVoucherType()->getDefaultDiscount());
 
-            $voucher->setJournal('Педагогика. Вопросы теории и практики');
             $voucher->setValidFrom(new \DateTime('2026-02-02'));
             $voucher->setValidTo(new \DateTime('2026-08-02'));
             $voucher->setCreatedAt(new \DateTime());
@@ -46,8 +45,10 @@ class VoucherController extends AbstractController
     }
 
     #[Route('/voucher/{uuid}', name: 'voucher_show')]
-    public function show(Voucher $voucher): Response
-    {
+    public function show(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])]
+        Voucher $voucher
+    ): Response {
         return $this->render('voucher/show.html.twig', [
             'voucher' => $voucher
         ]);
@@ -55,6 +56,7 @@ class VoucherController extends AbstractController
 
     #[Route('/voucher/{uuid}/download', name: 'voucher_download')]
     public function download(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])]
         Voucher $voucher,
         PdfGenerator $pdfGenerator
     ): Response {
