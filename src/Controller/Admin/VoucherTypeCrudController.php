@@ -34,6 +34,8 @@ class VoucherTypeCrudController extends AbstractCrudController
                 ->setHelp('Например: "Педагогика. Вопросы теории и практики"'),
             IntegerField::new('defaultDiscount', 'Скидка по умолчанию (%)')
                 ->setHelp('Эта скидка будет применяться к новым ваучерам этого типа'),
+            TextField::new('slug', 'Slug')
+                ->setHelp('Уникальный идентификатор для URL, например: "ped", "mns", "pan", "phil"')
         ];
     }
 }

@@ -17,14 +17,7 @@ class PublicVoucherFormType extends AbstractType
         $builder
             ->add('fullName')
             ->add('orcid')
-            ->add('email')
-            ->add('voucherType', EntityType::class, [
-                'class' => VoucherType::class,
-                'choice_label' => 'name',
-                'label' => 'Журнал',
-                'placeholder' => 'Выберите журнал',
-                'required' => true,
-            ]);
+            ->add('email');
     }
 
     public function configureOptions(OptionsResolver $resolver): void

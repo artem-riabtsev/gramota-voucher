@@ -21,6 +21,9 @@ class VoucherType
     #[ORM\Column]
     private ?int $defaultDiscount = null;
 
+    #[ORM\Column(length: 100, unique: true)]
+    private ?string $slug = null;
+
     #[ORM\OneToMany(targetEntity: Voucher::class, mappedBy: 'voucherType')]
     private Collection $vouchers;
 
@@ -53,6 +56,17 @@ class VoucherType
     public function setDefaultDiscount(int $defaultDiscount): static
     {
         $this->defaultDiscount = $defaultDiscount;
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
         return $this;
     }
 
