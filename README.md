@@ -1,5 +1,9 @@
 Запуск контейнеров
 ```bash
+# Скопировать переменные окружения
+cp .env.example .env
+```
+```bash
 # Собрать и запустить контейнеры
 docker compose up -d
 ```
@@ -16,5 +20,10 @@ docker compose exec php bin/console doctrine:migrations:migrate
 
 Доступ к приложению
 ```bash
-http://localhost:8080
+http://localhost:8080/ped
+http://localhost:8080/phil
+http://localhost:8080/pan
+http://localhost:8080/mns
+
+http://localhost/admin
 ```
