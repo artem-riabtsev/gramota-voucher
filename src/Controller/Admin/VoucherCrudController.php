@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class VoucherCrudController extends AbstractCrudController
 {
@@ -67,6 +68,12 @@ class VoucherCrudController extends AbstractCrudController
             DateTimeField::new('createdAt', 'Создан')
                 ->setFormat('dd.MM.yyyy HH:mm')
                 ->hideOnForm(),
+            ChoiceField::new('type', 'Тип')
+                ->setChoices([
+                    'Для себя' => 'self',
+                    'Подарочный' => 'gift',
+                ])
+                ->setRequired(true),
         ];
     }
 

@@ -10,6 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: VoucherRepository::class)]
 class Voucher
 {
+
+    public const TYPE_SELF = 'self';
+    public const TYPE_GIFT = 'gift';
+
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -31,6 +35,9 @@ class Voucher
 
     #[ORM\Column]
     private ?int $discount = null;
+
+    #[ORM\Column(length: 20)]
+    private ?string $type = null;
 
     #[ORM\Column]
     private ?\DateTime $validFrom = null;
@@ -136,6 +143,21 @@ class Voucher
     public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        if (!in_array($type, [self::TYPE_SELF, self::TYPE_GIFT])) {
+            throw new \InvalidArgumentException('Invalid voucher type');
+        }
+
+        $this->type = $type;
         return $this;
     }
 }

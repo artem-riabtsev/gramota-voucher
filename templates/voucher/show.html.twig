@@ -6,12 +6,13 @@
 <div class="container">
     <h1>ВАУЧЕР</h1>
 
+    <p>Тип: {% if voucher.type == 'gift' %}Подарочный{% endif %}</p>
     <p>Скидка: {{ voucher.discount }}%</p>
     <p>Журнал: {{ voucher.voucherType.name }}</p>
     <p>Получатель: {{ voucher.fullName }}</p>
     <p>ORCID: {{ voucher.orcid }}</p>
-    <p>Действует с {{ voucher.validFrom|date('d.m.Y') }}
-       по {{ voucher.validTo|date('d.m.Y') }}</p>
+    <p>Действует с: {{ voucher.validFrom|date('d.m.Y') }}</p>
+    <p>Действует по: {{ voucher.validTo|date('d.m.Y') }}</p>
 
     <a href="{{ path('voucher_download', {uuid: voucher.uuid}) }}" class="btn">
         Скачать PDF

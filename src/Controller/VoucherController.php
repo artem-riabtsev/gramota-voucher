@@ -31,14 +31,34 @@ class VoucherController extends AbstractController
         $voucher = new Voucher();
         $voucher->setVoucherType($voucherType);
 
+        $today = new \DateTime();
+        $voucher->setValidFrom($today);
+
         $form = $this->createForm(PublicVoucherFormType::class, $voucher);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $type = $form->get('type')->getData();
             $voucher->setDiscount($voucherType->getDefaultDiscount());
-            $voucher->setValidFrom(new \DateTime('2026-02-02'));
-            $voucher->setValidTo(new \DateTime('2026-08-02'));
-            $voucher->setCreatedAt(new \DateTime());
+
+            $now = new \DateTime();
+
+            if ($type === Voucher::TYPE_GIFT) {
+                $validFrom = $voucher->getValidFrom();
+
+                if (!$validFrom || $validFrom < $now) {
+                    $validFrom = clone $now;
+                    $voucher->setValidFrom($validFrom);
+                }
+            } else {
+                $voucher->setValidFrom(clone $now);
+            }
+
+            $validTo = clone $voucher->getValidFrom();
+            $voucher->setValidTo($validTo->modify('+1 month'));
+
+            $voucher->setCreatedAt($now);
+            $voucher->setType($type);
 
             $em->persist($voucher);
             $em->flush();
@@ -46,11 +66,11 @@ class VoucherController extends AbstractController
             return $this->redirectToRoute('voucher_show', [
                 'uuid' => $voucher->getUuid()
             ]);
-        };
+        }
 
         return $this->render('voucher/create.html.twig', [
             'form' => $form->createView(),
-            'journal' => $voucherType->getName(),
+            'journal' => $voucherType,
         ]);
     }
 

@@ -14,3 +14,8 @@
     {{ form_end(form) }}
 </div>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/voucher-form.js') }}"></script>
+{% endblock %}
