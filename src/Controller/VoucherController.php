@@ -14,7 +14,7 @@ use Symfony\Component\Uid\Uuid;
 
 class VoucherController extends AbstractController
 {
-    #[Route('/voucher/create', name: 'voucher_create')]
+    #[Route(['/', '/voucher/create'], name: 'voucher_create')]
     public function create(
         Request $request,
         EntityManagerInterface $em
