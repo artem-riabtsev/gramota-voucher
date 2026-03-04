@@ -27,7 +27,6 @@ class VoucherController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $voucher->setUuid(Uuid::v4());
             $voucher->setJournal('Педагогика. Вопросы теории и практики');
             $voucher->setValidFrom(new \DateTime('2026-02-02'));
             $voucher->setValidTo(new \DateTime('2026-08-02'));

@@ -3,16 +3,18 @@
 namespace App\Entity;
 
 use App\Repository\VoucherRepository;
-use Doctrine\DBAL\Types\Types;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VoucherRepository::class)]
 class Voucher
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $uuid = null;
 
     #[ORM\Column(length: 255)]
     private ?string $journal = null;
@@ -35,12 +37,9 @@ class Voucher
     #[ORM\Column]
     private ?\DateTime $createdAt = null;
 
-    #[ORM\Column(type: Types::GUID, unique: true)]
-    private ?string $uuid = null;
-
-    public function getId(): ?int
+    public function getUuid(): ?Uuid
     {
-        return $this->id;
+        return $this->uuid;
     }
 
     public function getJournal(): ?string
@@ -123,18 +122,6 @@ class Voucher
     public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUuid(): ?string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): static
-    {
-        $this->uuid = $uuid;
 
         return $this;
     }
