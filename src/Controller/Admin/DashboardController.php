@@ -31,7 +31,7 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToRoute('Ваучеры', 'fa fa-ticket', Voucher::class);
-        yield MenuItem::linkToRoute('Типы ваучеров', 'fa fa-newspaper', VoucherType::class);
+        yield MenuItem::linkToRoute('Ваучеры', 'fa fa-ticket', 'admin_voucher_index');
+        yield MenuItem::linkToRoute('Типы ваучеров', 'fa fa-newspaper', 'admin_voucher_type_index');
     }
 }
