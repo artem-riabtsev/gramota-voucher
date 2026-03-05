@@ -1,30 +1,5 @@
 <?php
 
-// namespace App\Service;
-
-// use App\Entity\Voucher;
-// use Dompdf\Dompdf;
-// use Twig\Environment;
-
-// class PdfGenerator
-// {
-//     public function __construct(private Environment $twig) {}
-
-//     public function generate(Voucher $voucher): string
-//     {
-//         $dompdf = new Dompdf();
-
-//         $html = $this->twig->render('voucher/pdf.html.twig', [
-//             'voucher' => $voucher
-//         ]);
-
-//         $dompdf->loadHtml($html);
-//         $dompdf->render();
-
-//         return $dompdf->output();
-//     }
-// }
-
 namespace App\Service;
 
 use App\Entity\Voucher;
@@ -39,6 +14,11 @@ class PdfGenerator
     public function generate(Voucher $voucher): string
     {
         $mpdf = new Mpdf();
+
+        $mpdf->AddPageByArray([
+            'sheet-size' => [210, 260],
+            'orientation' => 'P'
+        ]);
 
         $html = $this->twig->render('voucher/pdf.html.twig', [
             'voucher' => $voucher

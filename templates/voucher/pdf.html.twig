@@ -1,30 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Ваучер {{ voucher.uuid|slice(0,8) }}</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2cm; }
-        h1 { color: #333; }
-        .journal { font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('styles/voucher-pdf.css') }}">
 </head>
+
 <body>
-    <h1>ВАУЧЕР</h1>
+    <div class="voucher">
+        <div class="voucher-title">
+            {% if voucher.type == 'gift' %}Подарочный {% endif %}ВАУЧЕР
+        </div>
 
-    <p>Тип: {% if voucher.type == 'gift' %}Подарочный{% endif %}</p>    
+        <div class="journal-name">
+            {{ voucher.voucherType.name }}
+        </div>
 
-    <p>Скидка: {{ voucher.discount }}%</p>
+        <div class="discount-wrapper">
+            <div class="discount-circle">
+                {{ voucher.discount }}%
+            </div>
+        </div>
 
-    <p><span class="journal">Журнал:</span> {{ voucher.voucherType.name }}</p>
+        <div class="divider"></div>
 
-    <p>Получатель: {{ voucher.fullName }} ({{ voucher.orcid }})</p>
+        <div class="info-row">
+            <div class="label">Получатель</div>
+            <div class="value">{{ voucher.fullName }}</div>
+        </div>
 
-    <p>Срок действия:
-        {{ voucher.validFrom|date('d.m.Y') }} —
-        {{ voucher.validTo|date('d.m.Y') }}
-    </p>
+        <div class="info-row">
+            <div class="label">ORCID</div>
+            <div class="value">{{ voucher.orcid }}</div>
+        </div>
 
-    <p>UUID: {{ voucher.uuid }}</p>
+        <div class="divider"></div>
+
+        <div class="validity">
+            <div class="label">Срок действия</div>
+            <div class="value">
+                с {{ voucher.validFrom|date('d.m.Y') }}
+                по {{ voucher.validTo|date('d.m.Y') }}
+            </div>
+        </div>
+
+        <div class="uuid">
+            UUID: {{ voucher.uuid }}
+        </div>
+    </div>
 </body>
 </html>
