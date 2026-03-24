@@ -8,11 +8,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class VoucherCrudController extends AbstractCrudController
 {
@@ -34,58 +33,38 @@ class VoucherCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $uuidField = TextField::new('uuid', 'UUID')
-            ->formatValue(function ($value) {
-                if ($value instanceof \Symfony\Component\Uid\Uuid) {
-                    return $value->toRfc4122();
-                }
-                return $value;
-            })
-            ->hideWhenCreating()
-            ->setDisabled();
+        $uuid = TextField::new('uuid', 'UUID')
+            ->setFormTypeOption('disabled', true)
+            ->hideWhenCreating();
 
         return [
             IdField::new('id')->hideOnForm(),
-            $uuidField,
-            AssociationField::new('voucherType', 'Тип ваучера')
-                ->setHelp('Выберите журнал')
-                ->setRequired(true),
-            TextField::new('journal', 'Журнал')
-                ->formatValue(function ($value, $entity) {
-                    return $entity->getVoucherType()?->getName() ?? 'Не указан';
-                })
-                ->hideOnForm()
-                ->setDisabled(),
-            TextField::new('fullName', 'Полное имя'),
+            $uuid,
+            AssociationField::new('template', 'Шаблон ваучера')
+                ->setRequired(true)
+                ->autocomplete(),
+            TextField::new('fullName', 'ФИО'),
             TextField::new('orcid', 'ORCID'),
             EmailField::new('email', 'Email'),
-            IntegerField::new('discount', 'Скидка (%)')
-                ->setHelp('Индивидуальная скидка для этого ваучера'),
-            DateTimeField::new('validFrom', 'Действует с')
+            BooleanField::new('redeemed', 'Использован'),
+            DateTimeField::new('activeFrom', 'Активен с')
                 ->setFormat('dd.MM.yyyy HH:mm'),
-            DateTimeField::new('validTo', 'Действует до')
+            DateTimeField::new('activeTo', 'Активен по')
                 ->setFormat('dd.MM.yyyy HH:mm'),
             DateTimeField::new('createdAt', 'Создан')
                 ->setFormat('dd.MM.yyyy HH:mm')
                 ->hideOnForm(),
-            ChoiceField::new('type', 'Тип')
-                ->setChoices([
-                    'Для себя' => 'self',
-                    'Подарочный' => 'gift',
-                ])
-                ->setRequired(true),
         ];
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add('voucherType')
+            ->add('template')
             ->add('fullName')
             ->add('email')
-            ->add('discount')
-            ->add('validFrom')
-            ->add('validTo')
-            ->add('createdAt');
+            ->add('redeemed')
+            ->add('activeFrom')
+            ->add('activeTo');
     }
 }

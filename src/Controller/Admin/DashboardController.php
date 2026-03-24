@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Voucher;
-use App\Entity\VoucherType;
+use App\Entity\VoucherTemplate;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -30,8 +30,8 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Дашборд', 'fa fa-home');
         yield MenuItem::linkToRoute('Ваучеры', 'fa fa-ticket', 'admin_voucher_index');
-        yield MenuItem::linkToRoute('Типы ваучеров', 'fa fa-newspaper', 'admin_voucher_type_index');
+        yield MenuItem::linkToRoute('Шаблоны ваучеров', 'fa fa-copy', 'admin_voucher_template_index');
     }
 }

@@ -5,63 +5,42 @@ namespace App\Controller;
 use App\Entity\Voucher;
 use App\Form\PublicVoucherFormType;
 use App\Service\PdfGenerator;
+use App\Service\VoucherFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use App\Repository\VoucherTypeRepository;
+use App\Repository\VoucherTemplateRepository;
 
 class VoucherController extends AbstractController
 {
-    #[Route(['/{journal_slug}', '/voucher/create/{journal_slug}'], name: 'voucher_create')]
-    public function create(
-        string $journal_slug,
-        Request $request,
-        EntityManagerInterface $em,
-        VoucherTypeRepository $voucherTypeRepository
-    ): Response {
-        $voucherType = $voucherTypeRepository->findOneBy(['slug' => $journal_slug]);
+    public function __construct(
+        private VoucherFactory $voucherFactory,
+        private EntityManagerInterface $em
+    ) {}
 
-        if (!$voucherType) {
-            throw $this->createNotFoundException('Журнал не найден');
+    #[Route('/voucher/create/{templateUuid}', name: 'voucher_create')]
+    public function create(
+        string $templateUuid,
+        Request $request,
+        VoucherTemplateRepository $templateRepository
+    ): Response {
+        $template = $templateRepository->findOneBy(['uuid' => $templateUuid]);
+
+        if (!$template) {
+            throw $this->createNotFoundException('Шаблон ваучера не найден');
         }
 
-        $voucher = new Voucher();
-        $voucher->setVoucherType($voucherType);
-
-        $today = new \DateTime();
-        $voucher->setValidFrom($today);
+        $voucher = $this->voucherFactory->createFromTemplate($template);
 
         $form = $this->createForm(PublicVoucherFormType::class, $voucher);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $type = $form->get('type')->getData();
-            $voucher->setDiscount($voucherType->getDefaultDiscount());
-
-            $now = new \DateTime();
-
-            if ($type === Voucher::TYPE_GIFT) {
-                $validFrom = $voucher->getValidFrom();
-
-                if (!$validFrom || $validFrom < $now) {
-                    $validFrom = clone $now;
-                    $voucher->setValidFrom($validFrom);
-                }
-            } else {
-                $voucher->setValidFrom(clone $now);
-            }
-
-            $validTo = clone $voucher->getValidFrom();
-            $voucher->setValidTo($validTo->modify('+1 month'));
-
-            $voucher->setCreatedAt($now);
-            $voucher->setType($type);
-
-            $em->persist($voucher);
-            $em->flush();
+            $this->em->persist($voucher);
+            $this->em->flush();
 
             return $this->redirectToRoute('voucher_show', [
                 'uuid' => $voucher->getUuid()
@@ -70,7 +49,8 @@ class VoucherController extends AbstractController
 
         return $this->render('voucher/create.html.twig', [
             'form' => $form->createView(),
-            'journal' => $voucherType,
+            'template' => $template,
+            'voucher' => $voucher,
         ]);
     }
 
@@ -90,7 +70,6 @@ class VoucherController extends AbstractController
         Voucher $voucher,
         PdfGenerator $pdfGenerator
     ): Response {
-
         $pdfContent = $pdfGenerator->generate($voucher);
 
         return new Response(
@@ -98,7 +77,7 @@ class VoucherController extends AbstractController
             200,
             [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="voucher.pdf"'
+                'Content-Disposition' => 'attachment; filename="voucher-' . $voucher->getUuid() . '.pdf"'
             ]
         );
     }

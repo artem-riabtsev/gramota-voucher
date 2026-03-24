@@ -3,16 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\VoucherRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
-use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VoucherRepository::class)]
+#[ORM\Table(name: 'voucher')]
 class Voucher
 {
-
-    public const TYPE_SELF = 'self';
-    public const TYPE_GIFT = 'gift';
 
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
@@ -20,9 +18,9 @@ class Voucher
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $uuid = null;
 
-    #[ORM\ManyToOne(inversedBy: 'vouchers')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?VoucherType $voucherType = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'template_uuid', referencedColumnName: 'uuid', nullable: false)]
+    private ?VoucherTemplate $template = null;
 
     #[ORM\Column(length: 255)]
     private ?string $fullName = null;
@@ -34,39 +32,40 @@ class Voucher
     private ?string $email = null;
 
     #[ORM\Column]
-    private ?int $discount = null;
-
-    #[ORM\Column(length: 20)]
-    private ?string $type = null;
-
-    #[ORM\Column]
-    private ?\DateTime $validFrom = null;
-
-    #[ORM\Column]
-    private ?\DateTime $validTo = null;
-
-    #[ORM\Column]
     private ?\DateTime $createdAt = null;
+
+    #[ORM\Column]
+    private ?bool $redeemed = false;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $terms = null;
+
+    #[ORM\Column]
+    private ?\DateTime $activeFrom = null;
+
+    #[ORM\Column]
+    private ?\DateTime $activeTo = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+        $this->redeemed = false;
+    }
 
     public function getUuid(): ?Uuid
     {
         return $this->uuid;
     }
 
-    public function getVoucherType(): ?VoucherType
+    public function getTemplate(): ?VoucherTemplate
     {
-        return $this->voucherType;
+        return $this->template;
     }
 
-    public function setVoucherType(?VoucherType $voucherType): static
+    public function setTemplate(?VoucherTemplate $template): self
     {
-        $this->voucherType = $voucherType;
+        $this->template = $template;
         return $this;
-    }
-
-    public function getJournal(): ?string
-    {
-        return $this->voucherType?->getName();
     }
 
     public function getFullName(): ?string
@@ -74,7 +73,7 @@ class Voucher
         return $this->fullName;
     }
 
-    public function setFullName(string $fullName): static
+    public function setFullName(string $fullName): self
     {
         $this->fullName = $fullName;
         return $this;
@@ -85,7 +84,7 @@ class Voucher
         return $this->orcid;
     }
 
-    public function setOrcid(string $orcid): static
+    public function setOrcid(string $orcid): self
     {
         $this->orcid = $orcid;
         return $this;
@@ -96,42 +95,9 @@ class Voucher
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(string $email): self
     {
         $this->email = $email;
-        return $this;
-    }
-
-    public function getDiscount(): ?int
-    {
-        return $this->discount;
-    }
-
-    public function setDiscount(int $discount): static
-    {
-        $this->discount = $discount;
-        return $this;
-    }
-
-    public function getValidFrom(): ?\DateTime
-    {
-        return $this->validFrom;
-    }
-
-    public function setValidFrom(\DateTime $validFrom): static
-    {
-        $this->validFrom = $validFrom;
-        return $this;
-    }
-
-    public function getValidTo(): ?\DateTime
-    {
-        return $this->validTo;
-    }
-
-    public function setValidTo(\DateTime $validTo): static
-    {
-        $this->validTo = $validTo;
         return $this;
     }
 
@@ -140,24 +106,58 @@ class Voucher
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): static
+    public function setCreatedAt(\DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;
     }
 
-    public function getType(): ?string
+    public function isRedeemed(): ?bool
     {
-        return $this->type;
+        return $this->redeemed;
     }
 
-    public function setType(string $type): static
+    public function getRedeemed(): ?bool
     {
-        if (!in_array($type, [self::TYPE_SELF, self::TYPE_GIFT])) {
-            throw new \InvalidArgumentException('Invalid voucher type');
-        }
+        return $this->redeemed;
+    }
 
-        $this->type = $type;
+    public function setRedeemed(bool $redeemed): self
+    {
+        $this->redeemed = $redeemed;
+        return $this;
+    }
+
+    public function getActiveFrom(): ?\DateTime
+    {
+        return $this->activeFrom;
+    }
+
+    public function setActiveFrom(\DateTime $activeFrom): self
+    {
+        $this->activeFrom = $activeFrom;
+        return $this;
+    }
+
+    public function getActiveTo(): ?\DateTime
+    {
+        return $this->activeTo;
+    }
+
+    public function setActiveTo(\DateTime $activeTo): self
+    {
+        $this->activeTo = $activeTo;
+        return $this;
+    }
+
+    public function getTerms(): ?string
+    {
+        return $this->terms;
+    }
+
+    public function setTerms(string $terms): self
+    {
+        $this->terms = $terms;
         return $this;
     }
 }

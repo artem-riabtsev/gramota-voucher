@@ -6,7 +6,18 @@
 <div class="container">
     <h1>Получить ваучер</h1>
 
-    <p>Журнал: {{ journal }}</p>
+    <p>Журнал: {{ template.title }}</p>
+
+    <p>Описание: {{ template.description }}</p>
+
+    <p>Условия: {{ template.terms }}</p>
+
+    <p>Ваучер доступен для оформления с {{ template.releasedFrom|date('d.m.Y') }} по {{ template.releasedTo|date('d.m.Y') }} включительно.</p>
+    {% if template.activefromDelay == 0 %}
+        <p>Ваш ваучер будет действителен с сегодняшнего дня по {{ voucher.activeTo|date('d.m.Y') }} включительно.</p>
+    {% else %}
+        <p>Ваш ваучер будет действителен с {{ voucher.activeFrom|date('d.m.Y') }} по {{ voucher.activeTo|date('d.m.Y') }} включительно.</p>
+    {% endif %}
 
     {{ form_start(form) }}
         {{ form_widget(form) }}
