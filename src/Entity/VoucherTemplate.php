@@ -46,12 +46,8 @@ class VoucherTemplate
     #[ORM\Column(nullable: true)]
     private ?int $activeToDelay = null;
 
-    #[ORM\OneToMany(targetEntity: Voucher::class, mappedBy: 'template')]
-    private Collection $vouchers;
-
     public function __construct()
     {
-        $this->vouchers = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -156,30 +152,6 @@ class VoucherTemplate
     public function setActiveToDelay(?int $activeToDelay): self
     {
         $this->activeToDelay = $activeToDelay;
-        return $this;
-    }
-
-    public function getVouchers(): Collection
-    {
-        return $this->vouchers;
-    }
-
-    public function addVoucher(Voucher $voucher): self
-    {
-        if (!$this->vouchers->contains($voucher)) {
-            $this->vouchers->add($voucher);
-            $voucher->setTemplate($this);
-        }
-        return $this;
-    }
-
-    public function removeVoucher(Voucher $voucher): self
-    {
-        if ($this->vouchers->removeElement($voucher)) {
-            if ($voucher->getTemplate() === $this) {
-                $voucher->setTemplate(null);
-            }
-        }
         return $this;
     }
 }

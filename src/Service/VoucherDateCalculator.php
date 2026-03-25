@@ -10,19 +10,14 @@ class VoucherDateCalculator
     /**
      * Рассчитывает даты для ваучера на основе шаблона
      */
-    public function calculateDates(Voucher $voucher, VoucherTemplate $template, ?\DateTime $customActiveFrom = null): void
+    public function calculateDates(Voucher $voucher, VoucherTemplate $template): void
     {
         $now = new \DateTime();
 
         $voucher->setCreatedAt($now);
-
-        if ($customActiveFrom) {
-            $activeFrom = clone $customActiveFrom;
-        } else {
-            $activeFrom = clone $now;
-            if ($template->getActiveFromDelay()) {
-                $activeFrom->modify("+{$template->getActiveFromDelay()} days");
-            }
+        $activeFrom = clone $now;
+        if ($template->getActiveFromDelay()) {
+            $activeFrom->modify("+{$template->getActiveFromDelay()} days");
         }
         $voucher->setActiveFrom($activeFrom);
 

@@ -6,6 +6,7 @@ use App\Entity\Voucher;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -40,18 +41,22 @@ class VoucherCrudController extends AbstractCrudController
         return [
             IdField::new('id')->hideOnForm(),
             $uuid,
-            AssociationField::new('template', 'Шаблон ваучера')
-                ->setRequired(true)
-                ->autocomplete(),
-            TextField::new('fullName', 'ФИО'),
-            TextField::new('orcid', 'ORCID'),
-            EmailField::new('email', 'Email'),
+            TextField::new('fullName', 'ФИО')->setDisabled(true),
+            TextField::new('orcid', 'ORCID')->setDisabled(true),
+            EmailField::new('email', 'Email')->setDisabled(true),
             BooleanField::new('redeemed', 'Использован'),
+            TextareaField::new('terms', 'Условия использования')
+                ->setHelp('Подробные условия использования ваучера')
+                ->setRequired(true)
+                ->setDisabled(true),
             DateTimeField::new('activeFrom', 'Активен с')
+                ->setDisabled(true)
                 ->setFormat('dd.MM.yyyy HH:mm'),
             DateTimeField::new('activeTo', 'Активен по')
+                ->setDisabled(true)
                 ->setFormat('dd.MM.yyyy HH:mm'),
             DateTimeField::new('createdAt', 'Создан')
+                ->setDisabled(true)
                 ->setFormat('dd.MM.yyyy HH:mm')
                 ->hideOnForm(),
         ];
